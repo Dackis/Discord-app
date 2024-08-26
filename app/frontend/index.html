@@ -3,21 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert Data</title>
+    <title>Data Management</title>
 </head>
 <body>
-    <h1>Insert Data</h1>
-    <form id="dataForm">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name"><br><br>
-        <label for="value">Value:</label><br>
-        <input type="text" id="value" name="value"><br><br>
-        <input type="submit" value="Submit">
-    </form>
+    <h1>Data Management</h1>
+    <nav>
+        <button onclick="showInsertForm()">Insert Data</button>
+        <button onclick="fetchAndShowData()">View Data</button>
+    </nav>
 
-    <p id="responseMessage"></p>
+    <div id="insertForm" style="display:none;">
+        <h2>Insert Data</h2>
+        <form id="dataForm">
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name"><br><br>
+            <label for="value">Value:</label><br>
+            <input type="text" id="value" name="value"><br><br>
+            <input type="submit" value="Submit">
+        </form>
+        <p id="responseMessage"></p>
+    </div>
+
+    <div id="dataTable" style="display:none;">
+        <h2>Data Table</h2>
+        <table border="1" id="dataTableContent">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
 
     <script>
+        function showInsertForm() {
+            document.getElementById('insertForm').style.display = 'block';
+            document.getElementById('dataTable').style.display = 'none';
+        }
+
+        function fetchAndShowData() {
+            document.getElementById('insertForm').style.display = 'none';
+            document.getElementById('dataTable').style.display = 'block';
+
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('dataTableContent').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = '';  // Clear existing rows
+
+                    data.forEach(row => {
+                        const newRow = tableBody.insertRow();
+                        const idCell = newRow.insertCell(0);
+                        const nameCell = newRow.insertCell(1);
+                        const valueCell = newRow.insertCell(2);
+
+                        idCell.textContent = row.id;
+                        nameCell.textContent = row.name;
+                        valueCell.textContent = row.value;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
         document.getElementById('dataForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent form from refreshing the page
 
